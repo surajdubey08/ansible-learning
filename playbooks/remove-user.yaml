@@ -1,0 +1,10 @@
+- name: Remove Linux User
+  hosts: webserver
+  gather_facts: false
+
+  tasks:
+    - name: Remove user
+      ansible.builtin.user:
+        name: suraj
+        state: absent
+      become: true

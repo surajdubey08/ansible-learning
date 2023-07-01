@@ -1,0 +1,4 @@
+version: 1.0.0
+location: /home/ubuntu
+linuxuser: suraj
+destination: /home/{{linuxuser}}

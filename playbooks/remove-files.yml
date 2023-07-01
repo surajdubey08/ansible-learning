@@ -1,0 +1,21 @@
+---
+- name: Remove Folders from Servers
+  hosts: nexus-server
+  become: True
+  # gather_facts: false
+
+  tasks:
+    # - name: Remove folders
+    #   file:
+    #     path: "/opt/nexus-3.56.0-01"
+    #     state: absent
+    - name: Remove folders
+      file:
+        path: "/opt/nexus-3.56.0-01-unix.tar.gz"
+        state: absent
+    # - name: Remove folders
+    #   file:
+    #     path: "/opt/sonatype-work"
+    #     state: absent
+        # recurse: yes
+      # become: true
