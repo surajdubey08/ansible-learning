@@ -1,0 +1,68 @@
+---
+- name: Ensure the server is up and running # This is to ensure the server is up and running when pipelined with the server provisioned using Terraform
+  hosts: all
+  gather_facts: False
+  tasks:
+    - name: Ensure ssh port open
+      wait_for:
+        port: 22
+        delay: 10
+        timeout: 100
+        search_regex: OpenSSH
+        host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+      vars:
+        ansible_connection: local
+
+- name: Install pip, docker, docker-compose, docker-py
+  # hosts: docker_server
+  hosts: all
+  become: True
+  tasks:
+    - name: Install pip
+      dnf: # using dnf module to install because yum module doesn't work with python3
+        name: python-pip
+        update_cache: yes
+        state: present
+    - name: Install docker
+      dnf: # using dnf module to install because yum module doesn't work with python3
+        name: docker
+        update_cache: yes
+        state: present
+    - name: Install docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.19.1/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
+        dest: /usr/local/bin/docker-compose
+        mode: +x
+    - name: Ensure docker is running
+      systemd:
+        name: docker
+        state: started
+    - name: Install docker python module
+      pip:
+        name: docker-py
+
+- name: Add ec2-user to docker group
+  # hosts: docker_server
+  hosts: all
+  become: True
+  tasks:
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+    - name: Reconnect to server
+      meta: reset_connection
+
+- name: Start docker containers
+  # hosts: docker_server
+  hosts: all
+  # vars_prompt:
+  #   - name: image_name
+  #     prompt: Provide the image name
+  tasks:
+    - name: Pull redis
+      docker_image:
+        # name: "{{image_name}}"
+        name: "redis"
+        source: pull
