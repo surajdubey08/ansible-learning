@@ -1,6 +1,6 @@
 ---
 - name: Ensure the server is up and running # This is to ensure the server is up and running when pipelined with the server provisioned using Terraform
-  hosts: all
+  hosts: tag_Name_prod_server
   gather_facts: False
   tasks:
     - name: Ensure ssh port open
@@ -15,7 +15,7 @@
 
 - name: Install pip, docker, docker-compose, docker-py
   # hosts: docker_server
-  hosts: all
+  hosts: tag_Name_prod_server
   become: True
   tasks:
     - name: Install pip
@@ -23,6 +23,12 @@
         name: python-pip
         update_cache: yes
         state: present
+    # - name: Install boto3
+    #   pip:
+    #     name: boto3
+    # - name: Install botocore
+    #   pip:
+    #     name: botocore
     - name: Install docker
       dnf: # using dnf module to install because yum module doesn't work with python3
         name: docker
@@ -43,7 +49,7 @@
 
 - name: Add ec2-user to docker group
   # hosts: docker_server
-  hosts: all
+  hosts: tag_Name_prod_server
   become: True
   tasks:
     - name: Add ec2-user to docker group
@@ -56,7 +62,7 @@
 
 - name: Start docker containers
   # hosts: docker_server
-  hosts: all
+  hosts: tag_Name_prod_server
   # vars_prompt:
   #   - name: image_name
   #     prompt: Provide the image name
